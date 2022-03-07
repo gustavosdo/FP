@@ -6,91 +6,81 @@ Fundamentos de Programação do CEDERJ (2022.1) """
 
 # # # # # Subprogramas # # # # #
 
-# Cálculo do número total de permutações de n inteiros
-def fat(n):
-    if n < 2:
-        return 1
-    else:
-        return n * fat(n-1)
-# Fim da função fat
-
-# Função para checagem das restrições
-def checaRestricoes(arranjo, restricoes = True):
-    for elm in range(1, int(len(arranjo)/2)+1): # percorrer apenas elementos únicos
+# Função para checar se a restrição de repetição está sendo satisfeita
+def checaRestricao(listaInteiros, listaNumeros):
     
-        indElm = []
-        for ind in range(len(arranjo)):
-            if arranjo[ind] == elm:
-                indElm.append(ind)
-                
-        # Índice da primeira vez que o elemento surge
-        indInicial = indElm[0]
+    # Iniciamos criando uma chave de decisão
+    restricaoSatisfeita = True
+
+    inteiro = 1 # o primeiro inteiro é sempre 1
+
+    # Se a restrição for quebrada para qualquer inteiro podemos imediatamente parar a execução
+    while (inteiro <= max(listaInteiros) and restricaoSatisfeita):
+
+        # Lista dos dois índices onde surge o inteiro
+        indicesInteiro = []
+
+        # Verificação se cada número na lista é o inteiro
+        for indice in range(len(listaNumeros)):
+            numero = listaNumeros[indice]
+            if (numero == inteiro):
+                indicesInteiro.append(indice)
         
-        # Índice da repetição
-        indRepeticao = indElm[1]
-
-        # Para cada elemento, sua repetição deve ocorrer em indice + elemento + 1
-        if (indInicial + elm + 1 != indRepeticao):
-            restricoes = False
-
-    return(restricoes)
-# Fim da função checaRestricoes
-
-# Função para encontrar todos as permutações possíveis de n números
-def permutaN(iniArranjo, indice = 0, permutacoes = [], nPermutacoes = 0):
-
-    # 1. Condição de interrupção (índice final):
-    # não é preciso permutar nenhum elemento, temos uma sequência viável.
-    # Falta checar se a sequência satisfaz as restrições
-    if indice == len(iniArranjo):
-        nPermutacoes = nPermutacoes + 1
-        print(nPermutacoes)
-
-        # Checar se a permutação satisfaz as restrições:
-        restricoes = checaRestricoes(iniArranjo)
-
-        # Se as restrições são satisfeitas, adicionar a sequência ao resultado a ser retornado
-        if restricoes:
-            permutacoes.append(iniArranjo)
-            #print(permutacoes)
+        # Checando a restrição para este inteiro
+        restricaoSatisfeita = (indicesInteiro[1] == indicesInteiro[0] + inteiro + 1)
+        inteiro = inteiro + 1
     
-    # 2. Loop de permutação:
+    return restricaoSatisfeita
+# Fim da função checaRestricao
+
+# Função para permutar a lista de entrada
+def permutaN(listaInteiros, listaNumeros, indice = 0, permutacoes = []):
+    
+    # Loop de permutação:
     # Permutaremos o elemento no índice dado com todos à direita deste mesmo elemento
-    for i in range(indice, len(iniArranjo)):
+    for i in range(indice, len(listaNumeros)):
 
         # Copiamos o arranjo inicial dado
         permutacao = []
-        for j in range(0, len(iniArranjo)):
-            permutacao.append(iniArranjo[j])
+        for j in range(0, len(listaNumeros)):
+            permutacao.append(listaNumeros[j])
 
         # Permutamos o i-ésimo elemento com o elemento no indice dado
         permutacao[indice], permutacao[i] = permutacao[i], permutacao[indice]
 
+        # Condição de aceitação: não foi adicionado previamente e obedece às restrições
+        if (permutacao not in permutacoes) and (checaRestricao(listaInteiros, permutacao)):
+            permutacoes.append(permutacao)
+
         # Recursivamente atualizamos o índice e realizamos uma nova permutação
-        permutaN(permutacao, indice + 1, permutacoes)
+        permutaN(listaInteiros, permutacao, indice + 1, permutacoes)
     
-    # 3. Retorno do resultado:
-    if (nPermutacoes == fat(len(iniArranjo))):
-        return permutacoes
+    # Retorno do resultado:
+    return permutacoes
 # Fim da função permutaN
 
 # # # # # Programa principal # # # # #
 
 # Entrada do valor inteiro n
-n = int(input("Digite um número inteiro: "))
+n = int(input())
 
-# Vamos criar todas as permutações de 1 até n e verificar se é possível construir uma sequência
-# que respeite as restrições para cada permutação
+# Gerando uma lista com todos os inteiros de 1 até n (com duas aparições)
+listaInteiros = [] # criando lista
 
-# Criamos um vetor inicial simples ordenado de 1 a n
-iniArranjo = []
-for j in range(0, n):
-    iniArranjo.append(j + 1)
+# Preenchendo com a primeira aparição de cada inteiro
+for indice in range(n):
+    listaInteiros.append(indice + 1)
 
-iniArranjo = iniArranjo + iniArranjo
+# Repetindo os números
+listaNumeros = listaInteiros + listaInteiros
 
-# Encontrando todos as permutações possíveis com os números de 1 a n
-permutacoes = permutaN(iniArranjo = iniArranjo, indice = 0)
+# Obtendo sequências que satisfazem as restrições
+sequencias = permutaN(listaInteiros, listaNumeros)
 
-#print(permutacoes)
-print(len(permutacoes))
+# Retornando resultados ao usuário
+if (len(sequencias) == 0):
+    print("Não há sequências com o valor", n, "de entrada")
+else:
+    for seq in sequencias:
+        print(seq)
+    print("Há", len(sequencias), "sequências")
