@@ -56,7 +56,7 @@ dados = open(arquivo + ".txt", "r")
 if (dados.read(1)):
 
     # Voltando ao início do arquivo
-    dados = open(arquivo + ".txt", "r")
+    dados.seek(0)
 
     # Caso os dados estejam no arquivo, imprimi-los e calcular as grandezas solicitadas no enunciado
     print("Conteúdo do Arquivo "+arquivo+":")
